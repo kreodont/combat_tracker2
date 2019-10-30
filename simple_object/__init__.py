@@ -13,13 +13,13 @@ class SimpleObject:
     """
     name: str = 'Noname object'
     id: UUID = field(default_factory=uuid4)
-    _version_to_value_list: tuple = ({'version': 0, 'value': 'Initial value'}, )
+    _version_to_value_tuple: tuple = ({'version': 0, 'value': 'Initial value'},)
 
     def get_value(self, version: Optional[int] = None) -> Any:
         if version is None:
-            return self._version_to_value_list[-1]['value']
-        previous_item = self._version_to_value_list[0]
-        for item in self._version_to_value_list:
+            return self._version_to_value_tuple[-1]['value']
+        previous_item = self._version_to_value_tuple[0]
+        for item in self._version_to_value_tuple:
             if item['version'] > version:
                 return previous_item['value']
             previous_item = item
@@ -30,12 +30,12 @@ class SimpleObject:
         if version is None:
             return SimpleObject(
                 name=self.name,
-                _version_to_value_list=self._version_to_value_list + ({'version': self.last_version() + 1, 'value': value}, ))
+                _version_to_value_tuple=self._version_to_value_tuple + ({'version': self.get_last_version() + 1, 'value': value},))
 
-        if version <= self.last_version():
+        if version <= self.get_last_version():
             return self
 
-        return SimpleObject(name=self.name, _version_to_value_list=self._version_to_value_list + ({'version': version, 'value': value}, ))
+        return SimpleObject(name=self.name, _version_to_value_tuple=self._version_to_value_tuple + ({'version': version, 'value': value},))
 
-    def last_version(self):
-        return self._version_to_value_list[-1]['version']
+    def get_last_version(self):
+        return self._version_to_value_tuple[-1]['version']
