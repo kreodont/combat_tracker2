@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from uuid import uuid4, UUID
-from typing import Any, Optional, Dict, List
+from typing import Any, Optional
 
 
 @dataclass(frozen=True)
@@ -11,10 +11,9 @@ class SimpleObject:
     When updating object, you must always specify the version which is higher than last change. or it's fail
     _version_to_value_list: [{'version': 0, 'value': 'Initial value'}, {'version': 1, 'value': 'Changed value'}]
     """
-    # value: Any
     name: str = 'Noname object'
     id: UUID = field(default_factory=uuid4)
-    _version_to_value_list: List[Dict[str, Any]] = field(default_factory=lambda: [{'version': 0, 'value': 'Initial value'}, ])
+    _version_to_value_list: tuple = ({'version': 0, 'value': 'Initial value'}, )
 
     def get_value(self, version: Optional[int] = None) -> Any:
         if version is None:
@@ -29,13 +28,14 @@ class SimpleObject:
 
     def set_value(self, value: Any, version: Optional[int] = None) -> 'SimpleObject':
         if version is None:
-            self._version_to_value_list.append({'version': self.last_version() + 1, 'value': value})
-            return self
+            return SimpleObject(
+                name=self.name,
+                _version_to_value_list=self._version_to_value_list + ({'version': self.last_version() + 1, 'value': value}, ))
 
         if version <= self.last_version():
             return self
 
-        self._version_to_value_list.append({'version': version, 'value': value})
+        return SimpleObject(name=self.name, _version_to_value_list=self._version_to_value_list + ({'version': version, 'value': value}, ))
 
     def last_version(self):
         return self._version_to_value_list[-1]['version']
