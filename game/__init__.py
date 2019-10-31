@@ -1,20 +1,23 @@
 from dataclasses import dataclass
 from typing import Tuple, Any, Dict
-from uuid import UUID
 from simple_object import SimpleObject
 
 
 @dataclass(frozen=True)
 class Game:
-    """Game is just a set of SimpleObjects, that changes its version everytime
-    when any of objects is changed. It also keeps logs of every change"""
+    """
+    Game is just a set of SimpleObjects, that changes its version everytime
+    when any of objects is changed. It also keeps logs of every change (even
+    failure ones).
+    There also should be possible to save and load game
+    """
     version: int
     log: Tuple[str, ...]
-    objects: Dict[UUID, SimpleObject]
+    objects: Dict[str, SimpleObject]
     name: str
-    id: UUID
+    id: str
 
-    def change_object(self, object_id: UUID, new_value: Any):
+    def change_object(self, object_id: str, new_value: Any) -> 'Game':
         if object_id not in self.objects:
             return Game(version=self.version,
                         objects=self.objects,
@@ -27,7 +30,7 @@ class Game:
 
         target_object = self.objects[object_id]
         new_object = target_object.set_value(
-                version=self.version,
+                version=self.version + 1,
                 value=new_value,
         )
 

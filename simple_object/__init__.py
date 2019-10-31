@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from uuid import UUID
 from typing import Any, Optional
 
 
@@ -18,8 +17,11 @@ class SimpleObject:
     ]
     """
     name: str
-    id: UUID
-    _version_to_value_tuple: tuple
+    id: str
+    _version_to_value_tuple: tuple = (
+        {'version': 0,
+         'value': 'Initial value',
+         }, )
 
     def get_value(self, version: Optional[int] = None) -> Any:
         if version is None:
